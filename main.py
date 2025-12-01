@@ -48,7 +48,15 @@ def main_menu():
     # Get user input
     # Validate input (1-3)
     # Return choice
-    pass
+    try:
+        print(f"Options:\n1. New Game\n2. Load Game\n3. Exit")
+        user_choice = int(input())
+        if 1 <= user_choice <= 3:
+            return user_choice
+    except:
+        return None
+    
+    
 
 def new_game():
     """
@@ -69,7 +77,14 @@ def new_game():
     # Handle InvalidCharacterClassError
     # Save character
     # Start game loop
-    pass
+    try:
+        character_name = input()
+        character_class = input()
+        current_character = character_manager.create_character(character_name, character_class)
+    except InvalidCharacterClassError as excpt:
+        print(excpt)
+    character_manager.save_character(current_character)
+    game_loop()
 
 def load_game():
     """
@@ -87,7 +102,18 @@ def load_game():
     # Try to load character with character_manager.load_character()
     # Handle CharacterNotFoundError and SaveFileCorruptedError
     # Start game loop
-    pass
+    char_list = character_manager.list_saved_characters()
+    for item in char_list:
+        print(item)
+    user_choice = input()
+    try:
+        character_manager.load_character(current_character)
+    except CharacterNotFoundError as excpt:
+        print(excpt)
+    except SaveFileCorruptedError as excpt:
+        print(excpt)
+    game_loop()
+    
 
 # ============================================================================
 # GAME LOOP
@@ -107,7 +133,8 @@ def game_loop():
     #   Get player choice
     #   Execute chosen action
     #   Save game after each action
-    pass
+    game_menu()
+    save_game()
 
 def game_menu():
     """
@@ -124,7 +151,8 @@ def game_menu():
     Returns: Integer choice (1-6)
     """
     # TODO: Implement game menu
-    pass
+    print(f"Options:\n1. View Character Stats\n2. View Inventory\n3. Quest Menu\n4. Explore (Find Battles)\n5. Shop\n6. Save and Quit")
+    return input()
 
 # ============================================================================
 # GAME ACTIONS
@@ -133,12 +161,13 @@ def game_menu():
 def view_character_stats():
     """Display character information"""
     global current_character
-    
+    global all_quests
     # TODO: Implement stats display
     # Show: name, class, level, health, stats, gold, etc.
     # Use character_manager functions
     # Show quest progress using quest_handler
-    pass
+    print(f"{current_character}")
+    quest_handler.display_character_quest_progress(current_character, all_quests)
 
 def view_inventory():
     """Display and manage inventory"""
@@ -148,7 +177,9 @@ def view_inventory():
     # Show current inventory
     # Options: Use item, Equip weapon/armor, Drop item
     # Handle exceptions from inventory_system
-    pass
+    inventory_system.display_inventory(current_character, all_items)
+    input("Options: Use item, Equip weapon/armor, Drop item")
+    
 
 def quest_menu():
     """Quest management menu"""
@@ -164,7 +195,7 @@ def quest_menu():
     #   6. Complete Quest (for testing)
     #   7. Back
     # Handle exceptions from quest_handler
-    pass
+    print("1. View Active Quests\n2. View Available Quests\n3. View Completed Quests\n4. Accept Quest\n5. Abandon Quest\n6. Complete Quest (for testing)\n7. Back")
 
 def explore():
     """Find and fight random enemies"""
@@ -175,7 +206,8 @@ def explore():
     # Start combat with combat_system.SimpleBattle
     # Handle combat results (XP, gold, death)
     # Handle exceptions
-    pass
+    combat_system.get_random_enemy_for_level(character_level)
+    combat_system.SimpleBattle
 
 def shop():
     """Shop menu for buying/selling items"""
@@ -186,7 +218,9 @@ def shop():
     # Show current gold
     # Options: Buy item, Sell item, Back
     # Handle exceptions from inventory_system
-    pass
+    print(all_items)
+    print("Options: Buy item, Sell item, Back")
+    
 
 # ============================================================================
 # HELPER FUNCTIONS
@@ -199,7 +233,7 @@ def save_game():
     # TODO: Implement save
     # Use character_manager.save_character()
     # Handle any file I/O exceptions
-    pass
+    character_manager.save_character()
 
 def load_game_data():
     """Load all quest and item data from files"""
@@ -210,7 +244,14 @@ def load_game_data():
     # Try to load items with game_data.load_items()
     # Handle MissingDataFileError, InvalidDataFormatError
     # If files missing, create defaults with game_data.create_default_data_files()
-    pass
+    try:
+        game_data.load_quests()
+    except (MissingDataFileError, InvalidDataFormatError):
+        game_data.create_default_data_files()
+    try:
+        game_data.load_items()
+    except (MissingDataFileError, InvalidDataFormatError):
+        game_data.create_default_data_files()
 
 def handle_character_death():
     """Handle character death"""
@@ -221,7 +262,12 @@ def handle_character_death():
     # Offer: Revive (costs gold) or Quit
     # If revive: use character_manager.revive_character()
     # If quit: set game_running = False
-    pass
+    print("You Died")
+    choice = input("Offer: Revive (costs gold) or Quit")
+    if choice == "revive":
+        character_manager.revive_character()
+    elif choice == "quit":
+        game_running = False
 
 def display_welcome():
     """Display welcome message"""
@@ -271,4 +317,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
